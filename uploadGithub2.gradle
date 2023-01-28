@@ -1,0 +1,21 @@
+plugins {
+    id 'maven-publish'
+}
+group = 'com.lgy.socket'
+version = '1.0'
+
+
+
+afterEvaluate {
+    publishing {
+        publications {
+            // Creates a Maven publication called "release".
+            release(MavenPublication) {
+                from components.release
+                groupId = 'com.lgy.socket'
+                artifactId = 'android-compose-view'
+                version = '1.0'
+            }
+        }
+    }
+}
