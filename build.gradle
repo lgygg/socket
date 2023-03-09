@@ -1,5 +1,5 @@
 plugins {
-    id 'com.android.library' version '4.8.1'
+    id 'com.android.library'
 }
 apply plugin: 'maven-publish'
 group = 'com.lgy.socket'
