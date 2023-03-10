@@ -1,19 +1,27 @@
 plugins {
     id 'com.android.library'
+    id 'maven-publish'
 }
-apply plugin: 'maven-publish'
-group = 'com.lgy.socket'
-version = '1.0'
 
 afterEvaluate {
     publishing {
+        repositories {
+            maven {
+                url = uri("https://maven.pkg.github.com/lgygg/socket")
+                credentials {
+                    username = System.getenv("GITHUB_ACTOR")
+                    password = System.getenv("GITHUB_TOKEN")
+                }
+            }
+        }
+
         publications {
             // Creates a Maven publication called "release".
             release(MavenPublication) {
                 from components.release
-                groupId = 'com.lgy.socket'
-                artifactId = 'android-compose-view'
-                version = '1.0'
+                groupId = this.group
+                artifactId = 'lgy-socket'
+                version = this.version
             }
         }
     }
@@ -37,8 +45,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
 }
 
@@ -46,6 +54,6 @@ dependencies {
 
     implementation 'androidx.appcompat:appcompat:1.4.1'
     implementation 'com.google.android.material:material:1.5.0'
-    implementation 'io.netty:netty-all:4.1.84.Final'
-    implementation "com.squareup.retrofit2:converter-gson:2.9.0"
+    api 'io.netty:netty-all:4.1.84.Final'
+    api "com.squareup.retrofit2:converter-gson:2.9.0"
 }
