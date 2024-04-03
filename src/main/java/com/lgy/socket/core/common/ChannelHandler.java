@@ -30,8 +30,8 @@ public class ChannelHandler<T> extends SimpleChannelInboundHandler<T> {
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, T bean) throws Exception {
         if (this.handler != null) {
             SocketAddress socketAddress = channelHandlerContext.channel().remoteAddress();
-            SocketBase socketBase = dealAddress(socketAddress);
-            this.handler.read(socketBase.getIp(),socketBase.getPort(),bean);
+            SocketBase socketBase = Util.dealAddress(socketAddress);
+            this.handler.read(socketBase.getIp(), socketBase.getPort(), bean);
         }
     }
 
@@ -46,8 +46,8 @@ public class ChannelHandler<T> extends SimpleChannelInboundHandler<T> {
         super.channelActive(ctx);
         if (this.handler != null) {
             SocketAddress socketAddress = ctx.channel().remoteAddress();
-            SocketBase socketBase = dealAddress(socketAddress);
-            this.handler.channelActive(socketBase.getIp(),socketBase.getPort(), ctx.channel());
+            SocketBase socketBase = Util.dealAddress(socketAddress);
+            this.handler.channelActive(socketBase.getIp(), socketBase.getPort(), ctx.channel());
         }
     }
 
@@ -62,25 +62,9 @@ public class ChannelHandler<T> extends SimpleChannelInboundHandler<T> {
         super.channelInactive(ctx);
         if (this.handler != null) {
             SocketAddress socketAddress = ctx.channel().remoteAddress();
-            SocketBase socketBase = dealAddress(socketAddress);
-            this.handler.channelInactive(socketBase.getIp(),socketBase.getPort(),ctx.channel());
+            SocketBase socketBase = Util.dealAddress(socketAddress);
+            this.handler.channelInactive(socketBase.getIp(), socketBase.getPort(), ctx.channel());
         }
-    }
-
-
-    private SocketBase dealAddress(SocketAddress socketAddress){
-        SocketBase socketBase = new SocketBase();
-        if (socketAddress != null) {
-            String address = socketAddress.toString();
-            if (!TextUtils.isEmpty(address)) {
-                String[] addr = address.replace("/","").split(":");
-                if (addr.length>1) {
-                    socketBase.setIp(addr[0]);
-                    socketBase.setPort(Integer.valueOf(addr[1]));
-                }
-            }
-        }
-        return socketBase;
     }
 
 }

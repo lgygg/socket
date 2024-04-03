@@ -1,17 +1,10 @@
 package com.lgy.socket.core.common;
 
-import android.text.TextUtils;
-
-import com.lgy.socket.core.SocketBase;
 import com.lgy.socket.core.bean.PkgDataBean;
 import com.lgy.socket.core.service.TransferType;
 import com.lgy.socket.util.Global;
-import com.lgy.socket.util.LogHelper;
-
-import java.net.SocketAddress;
 
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 

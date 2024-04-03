@@ -1,18 +1,22 @@
 package com.lgy.socket.core.client;
 
+import java.net.InetSocketAddress;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.lgy.socket.core.IChannelInitAction;
 import com.lgy.socket.core.IClient;
 import com.lgy.socket.core.SocketBase;
 import com.lgy.socket.core.bean.PkgDataBean;
+import com.lgy.socket.core.bean.TransferData;
 import com.lgy.socket.core.common.BaseChannelInitializer;
 import com.lgy.socket.core.common.BoundHandler;
 import com.lgy.socket.core.common.CallBack;
+import com.lgy.socket.core.common.Constant;
 import com.lgy.socket.core.common.TransferAction;
 import com.lgy.socket.core.service.State;
 import com.lgy.socket.core.service.TransferType;
 import com.lgy.socket.util.Global;
-
-import java.net.InetSocketAddress;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -41,7 +45,13 @@ public class ClientHelper implements IClient, IChannelInitAction, TransferAction
             return;
         }
         this.socket.setCurrentState(State.START);
-        call(State.START, Client.class.getName() + " client start " + this.socket.getIp()+":"+this.socket.getPort());
+        TransferData transferData = new TransferData();
+        transferData.setFromIp(this.socket.getIp());
+        transferData.setFromPort(this.socket.getPort());
+        Map<String, Object> data = new HashMap<>();
+        data.put(Constant.DATA, Constant.START_CONNECT);
+        transferData.setData(data);
+        call(State.START, transferData);
         Global.getInstance().getThreadPool().execute(new Runnable() {
             @Override
             public void run() {
@@ -60,49 +70,77 @@ public class ClientHelper implements IClient, IChannelInitAction, TransferAction
 
     }
 
-    public <T> void setCallBack(CallBack<T> callBack) {
+    public void setCallBack(CallBack<TransferData> callBack) {
         this.callBack = callBack;
     }
 
-    private <T> void call(State state,T t){
+    private void call(State state, TransferData t) {
         if (callBack != null) {
-            callBack.onState(state,t);
+            callBack.onState(state, t);
         }
     }
 
     private void connectServer() {
         group = new NioEventLoopGroup();
-        Bootstrap bootstrap = new Bootstrap().group(group)
-                .option(ChannelOption.TCP_NODELAY, true)//屏蔽Nagle算法试图
-                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000)
-                .channel(NioSocketChannel.class)
-                .handler(new ClientChannelInitializer(new BoundHandler<PkgDataBean<String>>() {
-                    @Override
-                    public void read(String ip, Integer port, PkgDataBean<String> stringPkgDataBean) {
-                        call(State.CONNECTED, Client.class.getName() + " connect on " + ip+":"+port);
-                    }
+        Bootstrap bootstrap = new Bootstrap().group(group).option(ChannelOption.TCP_NODELAY, true)// 屏蔽Nagle算法试图
+            .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000).channel(NioSocketChannel.class)
+            .handler(new ClientChannelInitializer(new BoundHandler<PkgDataBean<String>>() {
+                @Override
+                public void read(String ip, Integer port, PkgDataBean<String> stringPkgDataBean) {
+                    TransferData transferData = new TransferData();
+                    transferData.setFromIp(ip);
+                    transferData.setFromPort(port);
+                    Map<String, Object> data = new HashMap<>();
+                    data.put(Constant.DATA, stringPkgDataBean.getData());
+                    transferData.setData(data);
+                    call(State.CONNECTED, transferData);
+                }
 
-                    @Override
-                    public void channelActive(String ip, Integer port,Channel channel) {
-                        call(State.CONNECTED, Client.class.getName() + " connect on " + ip+":"+port);
-                    }
+                @Override
+                public void channelActive(String ip, Integer port, Channel channel) {
+                    TransferData transferData = new TransferData();
+                    transferData.setFromIp(ip);
+                    transferData.setFromPort(port);
+                    Map<String, Object> data = new HashMap<>();
+                    data.put("msg", "connect success");
+                    transferData.setData(data);
+                    call(State.CONNECTED, transferData);
+                }
 
-                    @Override
-                    public void channelInactive(String ip, Integer port,Channel channel) {
-                        call(State.DISCONECTED, Client.class.getName() + " connect on " + ip+":"+port);
-                    }
-                }));
+                @Override
+                public void channelInactive(String ip, Integer port, Channel channel) {
+                    TransferData transferData = new TransferData();
+                    transferData.setFromIp(ip);
+                    transferData.setFromPort(port);
+                    Map<String, Object> data = new HashMap<>();
+                    data.put("msg", "connect disconnected");
+                    transferData.setData(data);
+                    call(State.DISCONNECTED, transferData);
+                }
+            }));
         // 连接到服务端
          channelFuture = bootstrap.connect(new InetSocketAddress(this.socket.getIp(), this.socket.getPort()));
         //获取连接通道
         channel = channelFuture.channel();
         try {
             this.socket.setCurrentState(State.CONNECTING);
-            call(State.CONNECTING, Client.class.getName() + " connect on " + this.socket.getIp()+":"+this.socket.getPort());
+            TransferData transferData = new TransferData();
+            transferData.setFromIp(this.socket.getIp());
+            transferData.setFromPort(this.socket.getPort());
+            Map<String, Object> data = new HashMap<>();
+            data.put("msg", "connecting");
+            transferData.setData(data);
+            call(State.CONNECTING, transferData);
             channelFuture.sync().channel();
         } catch (InterruptedException e) {
             this.socket.setCurrentState(State.END);
-            call(State.END, Client.class.getName() + " connect fail " + this.socket.getIp()+":"+this.socket.getPort());
+            TransferData transferData = new TransferData();
+            transferData.setFromIp(this.socket.getIp());
+            transferData.setFromPort(this.socket.getPort());
+            Map<String, Object> data = new HashMap<>();
+            data.put("msg", "connect fail");
+            transferData.setData(data);
+            call(State.END, transferData);
             e.printStackTrace();
         }
     }

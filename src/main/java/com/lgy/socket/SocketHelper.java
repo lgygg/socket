@@ -1,20 +1,18 @@
 package com.lgy.socket;
 
-import android.text.TextUtils;
-
-import com.lgy.socket.core.IClient;
+import com.lgy.socket.core.bean.TransferData;
 import com.lgy.socket.core.client.Client;
 import com.lgy.socket.core.client.ClientHelper;
+import com.lgy.socket.core.common.CallBack;
 import com.lgy.socket.core.service.Server;
 import com.lgy.socket.core.service.ServerChannelInitializer2;
 import com.lgy.socket.core.service.ServerHelper;
-import com.lgy.socket.core.common.CallBack;
+
+import android.text.TextUtils;
 
 public class SocketHelper {
 
-
-    private SocketHelper() {
-    }
+    private SocketHelper() {}
 
     private ServerHelper serverHelper;
     private ClientHelper clientHelper;
@@ -27,17 +25,15 @@ public class SocketHelper {
         return SocketHelper.SocketHelperInner.instance;
     }
 
-    public void createServer(int port, CallBack<String> callBack) {
-        
-        serverHelper = new ServerHelper(
-                new Server.Builder()
-                        .setPort(port).build());
+    public void createServer(int port, CallBack<TransferData> callBack) {
+
+        serverHelper = new ServerHelper(new Server.Builder().setPort(port).build());
         serverHelper.setCallBack(callBack);
         serverHelper.setChannelInitializer(new ServerChannelInitializer2());
         serverHelper.listen();
     }
 
-    public void closeServer(){
+    public void closeServer() {
         if (serverHelper != null) {
             serverHelper.close();
             serverHelper = null;
@@ -45,13 +41,14 @@ public class SocketHelper {
 
     }
 
-    public ClientHelper createClient(String ip, int port, CallBack<String> callBack) {
+    public ClientHelper createClient(String ip, int port, CallBack<TransferData> callBack) {
         clientHelper = new ClientHelper(new Client.Builder().setPort(port).setServerIp(ip).build());
         clientHelper.setCallBack(callBack);
+        clientHelper.connect();
         return clientHelper;
     }
 
-    public void closeClient(){
+    public void closeClient() {
         if (clientHelper != null) {
             clientHelper.close();
             clientHelper = null;
@@ -64,16 +61,16 @@ public class SocketHelper {
         }
     }
 
-    public void selectClient(String ip,Integer port) throws Exception {
+    public void selectClient(String ip, Integer port) throws Exception {
         if (serverHelper != null) {
-            serverHelper.selectorChannel(ip,port);
+            serverHelper.selectorChannel(ip, port);
         }
     }
 
     public void selectClient(String addr) throws Exception {
         if (serverHelper != null) {
             String[] addrs = !TextUtils.isEmpty(addr) ? addr.split(":") : new String[2];
-            serverHelper.selectorChannel(addrs[0],Integer.valueOf(addrs[1]));
+            serverHelper.selectorChannel(addrs[0], Integer.valueOf(addrs[1]));
         }
     }
 
