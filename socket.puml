@@ -1,0 +1,308 @@
+@startuml
+class com.lgy.socket.core.common.StringDecoder {
+- {static} String TAG
+# void decode(ChannelHandlerContext,ByteBuf,List<Object>)
+}
+enum com.lgy.socket.core.service.TransferType {
++  CLIENT_HEART_HIT
++  SERVER_HEART_HIT
++  STRING_TYPE
+- byte key
++ byte getKey()
+}
+interface com.lgy.socket.core.IService {
+~ void listen()
+~ void accept()
+~ void close()
+}
+interface com.lgy.socket.core.IChannelInitAction {
+~ void setChannelInitializer(BaseChannelInitializer<SocketChannel>)
+}
+class com.lgy.socket.core.service.ServerHandler {
+# void channelRead0(ChannelHandlerContext,Object)
++ void channelActive(ChannelHandlerContext)
++ void channelInactive(ChannelHandlerContext)
+}
+class com.lgy.socket.util.ByteUtil {
++ {static} byte[] byteMergerAll(byte[])
+}
+class com.lgy.socket.core.service.ServerStringHandler {
+# void channelRead1(ChannelHandlerContext,PkgDataBean<String>)
++ void channelActive(ChannelHandlerContext)
++ void channelInactive(ChannelHandlerContext)
+}
+enum com.lgy.socket.core.service.State {
++  INIT
++  START
++  CONNECTING
++  CONNECTED
++  DISCONNECTED
++  END
+- Integer level
+- String state
++ Integer getLevel()
++ String getState()
+}
+interface com.lgy.socket.core.common.Constant {
+~ {static} String DATA
+~ {static} String START_CONNECT
+~ {static} String START_SERVER
+~ {static} String SERVER_ACCEPT_CONNECT
+~ {static} String SERVER_DISCONNECT
+}
+class com.lgy.socket.core.client.ClientChannelInitializer {
+# void initChannel(SocketChannel)
+}
+class com.lgy.socket.core.client.Client {
+}
+class com.lgy.socket.core.client.Client$Builder {
+~ int port
+~ String serverIp
++ Client build()
++ Client.Builder setPort(int)
++ Client.Builder setServerIp(String)
+}
+class com.lgy.socket.core.client.ClientStringHandler {
+# void channelRead0(ChannelHandlerContext,PkgDataBean<String>)
++ void channelActive(ChannelHandlerContext)
++ void channelInactive(ChannelHandlerContext)
+}
+class com.lgy.socket.SocketHelper {
+- ServerHelper serverHelper
+- ClientHelper clientHelper
++ {static} SocketHelper getInstance()
++ void createServer(int,CallBack<TransferData>)
++ void closeServer()
++ ClientHelper createClient(String,int,CallBack<TransferData>)
++ void closeClient()
++ void serverSend(T)
++ void selectClient(String,Integer)
++ void selectClient(String)
++ void clientSend(T)
+}
+class com.lgy.socket.SocketHelper$SocketHelperInner {
+- {static} SocketHelper instance
+}
+class com.lgy.socket.core.service.ServerEncoder {
+- {static} String TAG
+# void encode(ChannelHandlerContext,Object,ByteBuf)
+}
+class com.lgy.socket.core.service.ServerChannelInitializer2 {
+# void initChannel(SocketChannel)
+}
+class com.lgy.socket.core.service.ServerChannelInitializer {
+- String webSocketPath
+# void initChannel(SocketChannel)
+}
+interface com.lgy.socket.core.common.BoundHandler {
+~ void read(String,Integer,T)
+~ void channelActive(String,Integer,Channel)
+~ void channelInactive(String,Integer,Channel)
+}
+interface com.lgy.socket.core.common.TransferAction {
+~ void send(T)
+}
+class com.lgy.socket.core.client.ClientHelper {
+- EventLoopGroup group
+- Channel channel
+- ChannelFuture channelFuture
+- CallBack callBack
+- SocketBase socket
++ void connect()
++ void close()
++ void setChannelInitializer(BaseChannelInitializer<SocketChannel>)
++ void setCallBack(CallBack<TransferData>)
+- void call(State,TransferData)
+- void connectServer()
++ void send(T)
+}
+class com.lgy.socket.util.NetUtil {
++ {static} String getIp(Context)
+- {static} String intToIp(int)
+}
+class com.lgy.socket.core.service.Server {
+}
+class com.lgy.socket.core.service.Server$Builder {
+~ int port
++ Server build()
++ Builder setPort(int)
+}
+abstract class com.lgy.socket.core.common.BaseServerChannelBoundHandler {
+# void channelRead0(ChannelHandlerContext,PkgDataBean<T>)
+# {abstract}void channelRead1(ChannelHandlerContext,PkgDataBean<T>)
+}
+class com.lgy.socket.util.ThreadPoolUtils {
+- ExecutorService exec
+- ScheduledExecutorService scheduleExec
++ void execute(Runnable)
++ void execute(List<Runnable>)
++ void shutDown()
++ List<Runnable> shutDownNow()
++ boolean isShutDown()
++ boolean isTerminated()
++ boolean awaitTermination(long,TimeUnit)
++ Future<T> submit(Callable<T>)
++ Future<T> submit(Runnable,T)
++ Future<?> submit(Runnable)
++ List<Future<T>> invokeAll(Collection<? extends Callable<T>>)
++ List<Future<T>> invokeAll(Collection<? extends Callable<T>>,long,TimeUnit)
++ T invokeAny(Collection<? extends Callable<T>>)
++ T invokeAny(Collection<? extends Callable<T>>,long,TimeUnit)
++ ScheduledFuture<?> schedule(Runnable,long,TimeUnit)
++ ScheduledFuture<V> schedule(Callable<V>,long,TimeUnit)
++ ScheduledFuture<?> scheduleWithFixedRate(Runnable,long,long,TimeUnit)
++ ScheduledFuture<?> scheduleWithFixedDelay(Runnable,long,long,TimeUnit)
+}
+enum com.lgy.socket.util.Type {
++  FixedThread
++  CachedThread
++  SingleThread
+}
+class com.lgy.socket.core.SocketBase {
+# Integer port
+# String ip
+# State currentState
++ String getIp()
++ Integer getPort()
++ void setIp(String)
++ void setPort(Integer)
++ State getCurrentState()
++ void setCurrentState(State)
+}
+class com.lgy.socket.core.common.StringEncoder {
+# void encode(ChannelHandlerContext,PkgDataBean<String>,ByteBuf)
+}
+class com.lgy.socket.core.service.ServerHelper {
+- SocketBase socket
+- Map<String,Channel> mapChannel
+- Channel currentChannel
+- EventLoopGroup bossGroup
+- EventLoopGroup workerGroup
+- CallBack callBack
+- ChannelInitializer initializer
++ void listen()
++ void accept()
++ void close()
++ void selectorChannel(String,Integer)
++ Map<String,Channel> getChannels()
++ void setCallBack(CallBack<TransferData>)
+- void call(State,TransferData)
++ void setChannelInitializer(BaseChannelInitializer)
++ void send(T)
+}
+class com.lgy.socket.util.GsonUtil {
+- {static} Gson gson
+- {static} JsonParser jsonParser
++ {static} JsonObject string2Object(String)
++ {static} String object2String(Object)
++ {static} T stringToBean(String,Class<T>)
++ {static} List<T> stringToList(String,Class<T>)
++ {static} List<Map<String,T>> stringToListMaps(String)
++ {static} Map<String,T> stringToMaps(String)
++ {static} String jsonElementAsString(JsonElement)
++ {static} Integer jsonElementAsInt(JsonElement)
+}
+interface com.lgy.socket.core.IClient {
+~ void connect()
+~ void close()
+}
+class com.lgy.socket.core.bean.PkgDataBean {
+- byte cmd
+- byte dataLength
+- T data
++ byte getCmd()
++ void setCmd(byte)
++ byte getDataLength()
++ void setDataLength(byte)
++ T getData()
++ void setData(T)
+}
+class com.lgy.socket.util.Global {
+- ThreadPoolUtils threadPool
++ {static} Integer heartBeatInterval
++ {static} Integer isSendHeartBeat
++ Integer maxConnectTimes
++ Integer reconnectNum
++ Boolean isNeedReconnect
++ Integer reconnectIntervalTime
++ {static} Global getInstance()
++ ThreadPoolUtils getThreadPool()
+}
+class com.lgy.socket.util.Global$GlobalInner {
+- {static} Global instance
+}
+class com.lgy.socket.core.bean.TransferData {
+- String fromIp
+- int fromPort
+- String toIp
+- int toPort
+- Map<String,Object> data
++ String getFromIp()
++ void setFromIp(String)
++ int getFromPort()
++ void setFromPort(int)
++ String getToIp()
++ void setToIp(String)
++ int getToPort()
++ void setToPort(int)
++ Map<String,Object> getData()
++ void setData(Map<String,Object>)
+}
+class com.lgy.socket.core.service.ServerDecoder {
+# void decode(ChannelHandlerContext,ByteBuf,List<Object>)
+}
+class com.lgy.socket.core.common.Util {
++ {static} SocketBase dealAddress(SocketAddress)
+}
+abstract class com.lgy.socket.core.common.BaseChannelInitializer {
+# BoundHandler<T> handler
++ void setHandler(BoundHandler<T>)
+}
+interface com.lgy.socket.core.common.CallBack {
+~ void onState(State,T)
+}
+class com.lgy.socket.util.LogHelper {
++ {static} String TAG
+- {static} boolean DEBUG
++ {static} void d(String)
++ {static} void e(String)
+}
+class com.lgy.socket.core.common.ChannelHandler {
+- BoundHandler<T> handler
+# void channelRead0(ChannelHandlerContext,T)
++ void channelActive(ChannelHandlerContext)
++ void channelInactive(ChannelHandlerContext)
+}
+abstract class com.lgy.socket.core.common.BaseClientChannelBoundHandler {
++ void userEventTriggered(ChannelHandlerContext,Object)
+- void sendHeartPkg(ChannelHandlerContext)
+}
+
+
+io.netty.handler.codec.ByteToMessageDecoder <|-- com.lgy.socket.core.common.StringDecoder
+io.netty.channel.SimpleChannelInboundHandler <|-- com.lgy.socket.core.service.ServerHandler
+com.lgy.socket.core.common.BaseServerChannelBoundHandler <|-- com.lgy.socket.core.service.ServerStringHandler
+com.lgy.socket.core.common.BaseChannelInitializer <|-- com.lgy.socket.core.client.ClientChannelInitializer
+com.lgy.socket.core.SocketBase <|-- com.lgy.socket.core.client.Client
+com.lgy.socket.core.client.Client +.. com.lgy.socket.core.client.Client$Builder
+com.lgy.socket.core.common.BaseClientChannelBoundHandler <|-- com.lgy.socket.core.client.ClientStringHandler
+com.lgy.socket.SocketHelper +.. com.lgy.socket.SocketHelper$SocketHelperInner
+io.netty.handler.codec.MessageToByteEncoder <|-- com.lgy.socket.core.service.ServerEncoder
+com.lgy.socket.core.common.BaseChannelInitializer <|-- com.lgy.socket.core.service.ServerChannelInitializer2
+io.netty.channel.ChannelInitializer <|-- com.lgy.socket.core.service.ServerChannelInitializer
+com.lgy.socket.core.IClient <|.. com.lgy.socket.core.client.ClientHelper
+com.lgy.socket.core.IChannelInitAction <|.. com.lgy.socket.core.client.ClientHelper
+com.lgy.socket.core.common.TransferAction <|.. com.lgy.socket.core.client.ClientHelper
+com.lgy.socket.core.SocketBase <|-- com.lgy.socket.core.service.Server
+com.lgy.socket.core.service.Server +.. com.lgy.socket.core.service.Server$Builder
+com.lgy.socket.core.common.ChannelHandler <|-- com.lgy.socket.core.common.BaseServerChannelBoundHandler
+io.netty.handler.codec.MessageToByteEncoder <|-- com.lgy.socket.core.common.StringEncoder
+com.lgy.socket.core.IService <|.. com.lgy.socket.core.service.ServerHelper
+com.lgy.socket.core.IChannelInitAction <|.. com.lgy.socket.core.service.ServerHelper
+com.lgy.socket.core.common.TransferAction <|.. com.lgy.socket.core.service.ServerHelper
+com.lgy.socket.util.Global +.. com.lgy.socket.util.Global$GlobalInner
+io.netty.handler.codec.ByteToMessageDecoder <|-- com.lgy.socket.core.service.ServerDecoder
+io.netty.channel.ChannelInitializer <|-- com.lgy.socket.core.common.BaseChannelInitializer
+io.netty.channel.SimpleChannelInboundHandler <|-- com.lgy.socket.core.common.ChannelHandler
+com.lgy.socket.core.common.ChannelHandler <|-- com.lgy.socket.core.common.BaseClientChannelBoundHandler
+@enduml

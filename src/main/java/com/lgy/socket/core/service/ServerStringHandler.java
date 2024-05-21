@@ -6,7 +6,12 @@ import com.lgy.socket.core.common.BoundHandler;
 import com.lgy.socket.util.LogHelper;
 
 import io.netty.channel.ChannelHandlerContext;
-
+/**
+ * 服务端信道
+ *
+ * @author: Administrator
+ * @date: 2024/5/21
+ */
 public class ServerStringHandler extends BaseServerChannelBoundHandler<String> {
     public ServerStringHandler(BoundHandler<PkgDataBean<String>> handler) {
         super(handler);

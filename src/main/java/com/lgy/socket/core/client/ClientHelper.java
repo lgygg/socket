@@ -13,6 +13,7 @@ import com.lgy.socket.core.common.BaseChannelInitializer;
 import com.lgy.socket.core.common.BoundHandler;
 import com.lgy.socket.core.common.CallBack;
 import com.lgy.socket.core.common.Constant;
+import com.lgy.socket.core.common.StateCallback;
 import com.lgy.socket.core.common.TransferAction;
 import com.lgy.socket.core.service.State;
 import com.lgy.socket.core.service.TransferType;
@@ -27,7 +28,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
-public class ClientHelper implements IClient, IChannelInitAction, TransferAction {
+public class ClientHelper implements IClient, TransferAction, StateCallback<TransferData> {
 
     private EventLoopGroup group;
     private Channel channel;
@@ -66,10 +67,6 @@ public class ClientHelper implements IClient, IChannelInitAction, TransferAction
     }
 
     @Override
-    public void setChannelInitializer(BaseChannelInitializer<SocketChannel> initializer) {
-
-    }
-
     public void setCallBack(CallBack<TransferData> callBack) {
         this.callBack = callBack;
     }

@@ -8,4 +8,6 @@ public interface IService {
     void accept();
     // 关闭服务
     void close();
+    // 切换通道,设置服务端与哪个客户端通信
+    void selectorChannel(String ip, Integer port);
 }

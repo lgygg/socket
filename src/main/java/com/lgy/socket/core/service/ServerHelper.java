@@ -13,6 +13,7 @@ import com.lgy.socket.core.common.BaseChannelInitializer;
 import com.lgy.socket.core.common.BoundHandler;
 import com.lgy.socket.core.common.CallBack;
 import com.lgy.socket.core.common.Constant;
+import com.lgy.socket.core.common.StateCallback;
 import com.lgy.socket.core.common.TransferAction;
 
 import com.lgy.socket.util.Global;
@@ -27,7 +28,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 
-public class ServerHelper implements IService, IChannelInitAction, TransferAction {
+public class ServerHelper implements IService, IChannelInitAction, TransferAction, StateCallback<TransferData> {
 
     private SocketBase socket;
     private Map<String, Channel> mapChannel = new HashMap<>();
@@ -100,16 +101,14 @@ public class ServerHelper implements IService, IChannelInitAction, TransferActio
     }
 
     /**
-     * 切换通道 设置服务端，与哪个客户端通信
+     * 切换通道 设置服务端与哪个客户端通信
      */
+    @Override
     public void selectorChannel(String ip, Integer port) {
         currentChannel = mapChannel.get(ip + ":" + port);
     }
 
-    public Map<String, Channel> getChannels() {
-        return mapChannel;
-    }
-
+    @Override
     public void setCallBack(CallBack<TransferData> callBack) {
         this.callBack = callBack;
     }
